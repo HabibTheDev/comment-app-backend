@@ -5,6 +5,7 @@ import { User } from '../Authentication/auth.model';
 import { Comment } from './comment.model';
 import mongoose from 'mongoose';
 import QueryBuilder from '../../builder/QueryBuilder';
+import { Types } from 'mongoose';
 
 const addCommentByUser = async (userId: string, payload: TComment) => {
   if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -118,10 +119,82 @@ const getSingleCommentFromDB = async (userId: string) => {
   }
 };
 
+const likeComment = async (userId: string, commentId: string) => {
+  try {
+    const userIdObj = new Types.ObjectId(userId);
+
+    const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Comment not found');
+    }
+
+    if (comment.likes.includes(userIdObj)) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'You have already liked this comment',
+      );
+    }
+
+    if (comment.dislikes.includes(userIdObj)) {
+      comment.dislikes = comment.dislikes.filter(
+        (dislikeId) => !dislikeId.equals(userIdObj),
+      );
+      comment.disLikeVotes -= 1;
+    }
+
+    comment.likes.push(userIdObj);
+    comment.likeVotes += 1;
+
+    await comment.save();
+
+    return comment;
+  } catch (error: any) {
+    throw new AppError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
+const dislikeComment = async (userId: string, commentId: string) => {
+  try {
+    const userIdObj = new Types.ObjectId(userId);
+
+    const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Comment not found');
+    }
+
+    if (comment.dislikes.includes(userIdObj)) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'You have already disliked this comment',
+      );
+    }
+
+    if (comment.likes.includes(userIdObj)) {
+      comment.likes = comment.likes.filter(
+        (likeId) => !likeId.equals(userIdObj),
+      );
+      comment.likeVotes -= 1;
+    }
+
+    comment.dislikes.push(userIdObj);
+    comment.disLikeVotes += 1;
+
+    await comment.save();
+
+    return comment;
+  } catch (error: any) {
+    throw new AppError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
 export const CommentService = {
   addCommentByUser,
   updateComment,
   deleteComment,
   getAllCommentFromDB,
   getSingleCommentFromDB,
+  likeComment,
+  dislikeComment,
 };

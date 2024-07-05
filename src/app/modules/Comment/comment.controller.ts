@@ -73,10 +73,46 @@ const getSingleComment = catchAsync(async (req, res) => {
   });
 });
 
+const likeCommentCommentController = catchAsync(async (req, res) => {
+  const { commentId } = req.params;
+  const userId = req.user._id;
+
+  const result = await CommentService.likeComment(
+    userId as string,
+    commentId as string,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Comment Updated By User Successfully',
+    data: result,
+  });
+});
+
+const disLikeCommentCommentController = catchAsync(async (req, res) => {
+  const { commentId } = req.params;
+  const userId = req.user._id;
+
+  const result = await CommentService.dislikeComment(
+    userId as string,
+    commentId as string,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Comment Updated By User Successfully',
+    data: result,
+  });
+});
+
 export const CommentController = {
   createComment,
   UpdateCommentController,
   deleteCommentController,
   getAllComment,
   getSingleComment,
+  likeCommentCommentController,
+  disLikeCommentCommentController,
 };

@@ -20,7 +20,19 @@ router.put(
 );
 
 router.delete('/:commentId', auth(), CommentController.deleteCommentController);
+
 router.get('/', auth(), CommentController.deleteCommentController);
+
 router.get('/:userId', auth(), CommentController.getSingleComment);
 
+router.put(
+  '/:commentId',
+  auth(),
+  CommentController.likeCommentCommentController,
+);
+router.put(
+  '/:commentId',
+  auth(),
+  CommentController.disLikeCommentCommentController,
+);
 export const CommentRoutes = router;
