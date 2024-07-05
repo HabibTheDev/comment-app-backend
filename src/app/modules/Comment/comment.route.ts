@@ -26,13 +26,14 @@ router.get('/', auth(), CommentController.deleteCommentController);
 router.get('/:userId', auth(), CommentController.getSingleComment);
 
 router.put(
-  '/:commentId',
+  '/like/:commentId',
   auth(),
   CommentController.likeCommentCommentController,
 );
 router.put(
-  '/:commentId',
+  '/dislike/:commentId',
   auth(),
   CommentController.disLikeCommentCommentController,
 );
+
 export const CommentRoutes = router;

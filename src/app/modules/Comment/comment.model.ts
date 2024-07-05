@@ -1,5 +1,16 @@
 import mongoose, { Schema } from 'mongoose';
 
+const ReplySchema = new Schema(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    reply: { type: String, required: true, trim: true },
+    createdAt: { type: Date, default: Date.now },
+  },
+  {
+    _id: false,
+  },
+);
+
 const CommentSchema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -8,6 +19,7 @@ const CommentSchema = new Schema(
     dislikes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     likeVotes: { type: Number, default: 0 },
     disLikeVotes: { type: Number, default: 0 },
+    replies: [ReplySchema],
   },
   {
     timestamps: true,

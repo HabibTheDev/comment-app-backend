@@ -1,11 +1,12 @@
 import httpStatus from 'http-status';
-import { TComment } from './comment.interface';
+import { TComment, TReplyPayload } from './comment.interface';
 import AppError from '../../errors/AppError';
 import { User } from '../Authentication/auth.model';
 import { Comment } from './comment.model';
 import mongoose from 'mongoose';
 import QueryBuilder from '../../builder/QueryBuilder';
 import { Types } from 'mongoose';
+import { io } from '../../../app';
 
 const addCommentByUser = async (userId: string, payload: TComment) => {
   if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -189,6 +190,95 @@ const dislikeComment = async (userId: string, commentId: string) => {
   }
 };
 
+const addReplyToComment = async (commentId: string, payload: TReplyPayload) => {
+  try {
+    const { userId, reply } = payload;
+    const userIdObj = new Types.ObjectId(userId);
+
+    const userExists = await User.findById(userId);
+    if (!userExists) {
+      throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+    }
+
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Comment not found');
+    }
+
+    comment.replies.push({ userId: userIdObj, reply });
+    await comment.save();
+
+    io.emit('replyAdded', { commentId, reply: { userId, reply } });
+
+    return comment;
+  } catch (error: any) {
+    throw new AppError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
+const updateReply = async (
+  commentId: string,
+  replyId: string,
+  payload: Partial<TReplyPayload>,
+) => {
+  try {
+    const { userId, reply } = payload;
+    const userIdObj = new Types.ObjectId(userId);
+
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Comment not found');
+    }
+
+    const replyToUpdate = comment.replies.id(replyId);
+    if (!replyToUpdate) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Reply not found');
+    }
+
+    if (!replyToUpdate.userId.equals(userIdObj)) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        'You are not authorized to update this reply',
+      );
+    }
+
+    if (reply) {
+      replyToUpdate.reply = reply;
+    }
+
+    await comment.save();
+
+    io.emit('replyUpdated', { commentId, replyId, reply });
+
+    return comment;
+  } catch (error: any) {
+    throw new AppError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
+const deleteReply = async (commentId: string, replyId: string) => {
+  try {
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Comment not found');
+    }
+
+    const replyToDelete = comment.replies.id(replyId);
+    if (!replyToDelete) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Reply not found');
+    }
+
+    replyToDelete.deleteOne();
+    await comment.save();
+
+    io.emit('replyDeleted', { commentId, replyId });
+
+    return { message: 'Reply deleted successfully' };
+  } catch (error: any) {
+    throw new AppError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
 export const CommentService = {
   addCommentByUser,
   updateComment,
@@ -197,4 +287,7 @@ export const CommentService = {
   getSingleCommentFromDB,
   likeComment,
   dislikeComment,
+  addReplyToComment,
+  updateReply,
+  deleteReply,
 };

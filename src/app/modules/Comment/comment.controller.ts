@@ -12,7 +12,7 @@ const createComment = catchAsync(async (req, res) => {
 
   sendResponse(res, {
     success: true,
-    statusCode: httpStatus.OK,
+    statusCode: httpStatus.CREATED,
     message: 'Comment Added By User Successfully',
     data: result,
   });
@@ -107,6 +107,53 @@ const disLikeCommentCommentController = catchAsync(async (req, res) => {
   });
 });
 
+const addReply = catchAsync(async (req, res) => {
+  const { commentId } = req.params;
+  const { userId, reply } = req.body;
+
+  const result = await CommentService.addReplyToComment(commentId, {
+    userId,
+    reply,
+  });
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: 'Reply added successfully',
+    data: result,
+  });
+});
+
+const updateReplyById = catchAsync(async (req, res) => {
+  const { commentId, replyId } = req.params;
+  const { userId, reply } = req.body;
+
+  const result = await CommentService.updateReply(commentId, replyId, {
+    userId,
+    reply,
+  });
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Reply updated successfully',
+    data: result,
+  });
+});
+
+const deleteReplyById = catchAsync(async (req, res) => {
+  const { commentId, replyId } = req.params;
+
+  await CommentService.deleteReply(commentId, replyId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Reply updated successfully',
+    data: '',
+  });
+});
+
 export const CommentController = {
   createComment,
   UpdateCommentController,
@@ -115,4 +162,7 @@ export const CommentController = {
   getSingleComment,
   likeCommentCommentController,
   disLikeCommentCommentController,
+  addReply,
+  updateReplyById,
+  deleteReplyById,
 };
