@@ -12,5 +12,12 @@ router.post(
   validateRequest(commentValidations.commentSchemaValidation),
   CommentController.createComment,
 );
+router.put(
+  '/:commentId',
+  auth(),
+  validateRequest(commentValidations.commentSchemaValidation),
+  CommentController.UpdateCommentController,
+);
+router.delete('/:commentId', auth(), CommentController.deleteCommentController);
 
 export const ServiceRoutes = router;

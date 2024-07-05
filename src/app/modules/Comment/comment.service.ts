@@ -19,6 +19,55 @@ const addCommentByUser = async (userId: string, payload: TComment) => {
   return result;
 };
 
+const updateComment = async (
+  userId: string,
+  commentId: string,
+  payload: Partial<TComment>,
+) => {
+  const comment = await Comment.findById(commentId);
+
+  if (!comment) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Comment not found');
+  }
+
+  if (comment.userId.toString() !== userId) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      'You are not authorized to update this comment',
+    );
+  }
+
+  Object.assign(comment, payload);
+  const result = await comment.save();
+
+  if (!result) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to update comment');
+  }
+
+  return result;
+};
+
+const deleteComment = async (userId: string, commentId: string) => {
+  const comment = await Comment.findById(commentId);
+
+  if (!comment) {
+    throw new AppError(httpStatus.NOT_FOUND, 'Comment not found');
+  }
+
+  if (comment.userId.toString() !== userId) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      'You are not authorized to delete this comment',
+    );
+  }
+
+  await comment.deleteOne();
+
+  return { message: 'Comment deleted successfully' };
+};
+
 export const CommentService = {
   addCommentByUser,
+  updateComment,
+  deleteComment,
 };
