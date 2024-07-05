@@ -9,6 +9,7 @@ const createUserSchemaValidation = z.object({
   email: z.string().email(),
   username: z.string(),
   password: z.string(),
+  photo: z.string().optional(),
   // .refine(
   //   (value) =>
   //     /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$/.test(

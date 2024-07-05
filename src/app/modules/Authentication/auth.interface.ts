@@ -11,8 +11,7 @@ export interface TUser {
   email: string;
   username: string;
   password: string;
-  passwordChangedAt?: Date;
-  passwordHistory?: { password: string; timestamp: Date }[];
+  photo?: string;
 }
 
 export interface UserModel extends Model<TUser> {

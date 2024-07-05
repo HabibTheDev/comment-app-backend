@@ -16,6 +16,11 @@ const userSchema = new Schema<TUser, UserModel>(
       required: true,
       unique: true,
     },
+    photo: {
+      type: String,
+      required: false,
+      unique: true,
+    },
     password: {
       type: String,
       required: true,
@@ -32,10 +37,6 @@ const userSchema = new Schema<TUser, UserModel>(
       //       'Password must be at least 8 characters long and include at least one uppercase letter and one special character.',
       //   },
     },
-    passwordChangedAt: {
-      type: Date,
-    },
-    passwordHistory: [{ password: String, timestamp: Date }],
   },
   {
     timestamps: true,
