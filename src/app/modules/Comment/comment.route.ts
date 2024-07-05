@@ -18,6 +18,9 @@ router.put(
   validateRequest(commentValidations.commentSchemaValidation),
   CommentController.UpdateCommentController,
 );
+
 router.delete('/:commentId', auth(), CommentController.deleteCommentController);
+router.get('/', auth(), CommentController.deleteCommentController);
+router.get('/:userId', auth(), CommentController.getSingleComment);
 
 export const CommentRoutes = router;

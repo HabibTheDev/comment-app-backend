@@ -51,8 +51,32 @@ const deleteCommentController = catchAsync(async (req, res) => {
   });
 });
 
+const getAllComment = catchAsync(async (req, res) => {
+  const result = await CommentService.getAllCommentFromDB(req.query);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Comments retrieved successfully',
+    data: result,
+  });
+});
+
+const getSingleComment = catchAsync(async (req, res) => {
+  const result = await CommentService.getSingleCommentFromDB(req.params.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Comment retrieved successfully',
+    data: result,
+  });
+});
+
 export const CommentController = {
   createComment,
   UpdateCommentController,
   deleteCommentController,
+  getAllComment,
+  getSingleComment,
 };

@@ -4,6 +4,7 @@ import AppError from '../../errors/AppError';
 import { User } from '../Authentication/auth.model';
 import { Comment } from './comment.model';
 import mongoose from 'mongoose';
+import QueryBuilder from '../../builder/QueryBuilder';
 
 const addCommentByUser = async (userId: string, payload: TComment) => {
   if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -71,8 +72,56 @@ const deleteComment = async (userId: string, commentId: string) => {
   return { message: 'Comment deleted successfully' };
 };
 
+const getAllCommentFromDB = async (query: Record<string, unknown>) => {
+  try {
+    const commentQuery = new QueryBuilder(
+      Comment.find({}).populate([
+        {
+          path: 'User',
+          select: 'name',
+        },
+      ]),
+      query,
+    )
+      .filter()
+      .sort()
+      .paginate()
+      .fields();
+
+    const result = await commentQuery.modelQuery.exec();
+    const meta = await commentQuery.countTotal();
+
+    return { comments: result, meta };
+  } catch (error: any) {
+    throw new AppError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
+const getSingleCommentFromDB = async (userId: string) => {
+  try {
+    const commentFind = await Comment.findById(userId).populate([
+      {
+        path: 'User',
+        select: 'name',
+      },
+    ]);
+
+    if (!commentFind) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Comment not found');
+    }
+
+    const commentData = commentFind.toObject();
+
+    return commentData;
+  } catch (error: any) {
+    throw new AppError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
 export const CommentService = {
   addCommentByUser,
   updateComment,
   deleteComment,
+  getAllCommentFromDB,
+  getSingleCommentFromDB,
 };
