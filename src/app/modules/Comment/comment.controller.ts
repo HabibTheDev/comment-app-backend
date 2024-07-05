@@ -4,10 +4,11 @@ import sendResponse from '../../utils/sendRequest';
 import { CommentService } from './comment.service';
 
 const createComment = catchAsync(async (req, res) => {
-  const commentData = req.body;
-  const userId = req.user._id;
+  const { comment } = req.body;
 
-  const result = await CommentService.addCommentByUser(userId, commentData);
+  const userId = req.user._id.toString();
+
+  const result = await CommentService.addCommentByUser(userId, { comment });
 
   sendResponse(res, {
     success: true,

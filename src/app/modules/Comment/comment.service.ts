@@ -3,10 +3,15 @@ import { TComment } from './comment.interface';
 import AppError from '../../errors/AppError';
 import { User } from '../Authentication/auth.model';
 import { Comment } from './comment.model';
+import mongoose from 'mongoose';
 
 const addCommentByUser = async (userId: string, payload: TComment) => {
-  const UserExits = await User.isUserExistsId(userId);
-  if (!UserExits) {
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new AppError(httpStatus.BAD_REQUEST, 'Invalid user ID format');
+  }
+
+  const userExists = await User.findById(userId);
+  if (!userExists) {
     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
   }
 
@@ -14,7 +19,7 @@ const addCommentByUser = async (userId: string, payload: TComment) => {
 
   const result = await Comment.create(commentData);
   if (!result) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to Add Comment');
+    throw new AppError(httpStatus.BAD_REQUEST, 'Failed to add comment');
   }
   return result;
 };

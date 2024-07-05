@@ -1,7 +1,7 @@
 import { Model } from 'mongoose';
 
 export interface TLoginUser {
-  username: string;
+  email: string;
   password: string;
 }
 

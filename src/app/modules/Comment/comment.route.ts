@@ -20,4 +20,4 @@ router.put(
 );
 router.delete('/:commentId', auth(), CommentController.deleteCommentController);
 
-export const ServiceRoutes = router;
+export const CommentRoutes = router;
