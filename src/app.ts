@@ -17,7 +17,17 @@ const server = http.createServer(app);
 const io = new Server(server, {
   path: '/',
   cors: {
-    origin: config.app_link,
+    origin: (origin, callback) => {
+      if (
+        !origin ||
+        origin === config.app_link ||
+        origin === 'https://comment-app-cyan.vercel.app'
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST', 'DELETE', 'PUT'],
     credentials: true,
   },
@@ -25,7 +35,12 @@ const io = new Server(server, {
 
 // Middleware setup
 app.use(express.json());
-app.use(cors({ origin: config.app_link, credentials: true }));
+app.use(
+  cors({
+    origin: config.app_link || `https://comment-app-cyan.vercel.app`,
+    credentials: true,
+  }),
+);
 
 // Initialize Socket.IO events
 socketEvents(io);
