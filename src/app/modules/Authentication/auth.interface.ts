@@ -11,7 +11,6 @@ export interface TUser {
   email: string;
   username: string;
   password: string;
-  photo?: string;
 }
 
 export interface UserModel extends Model<TUser> {
