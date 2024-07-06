@@ -203,8 +203,6 @@ const likeReply = async (
     const userIdObj = new Types.ObjectId(userId);
     const comment = await Comment.findById(commentId);
 
-    console.log(comment);
-
     if (!comment) {
       throw new AppError(httpStatus.NOT_FOUND, 'Comment not found');
     }

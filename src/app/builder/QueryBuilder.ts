@@ -43,9 +43,18 @@ class QueryBuilder<T> {
   }
 
   sort() {
-    const sort =
-      (this?.query?.sort as string)?.split(',')?.join(' ') || '-createdAt';
-    this.modelQuery = this.modelQuery.sort(sort as string);
+    const sortOption = this.query.sort as string;
+    let sortCriteria = '-createdAt';
+
+    if (sortOption === 'mostLiked') {
+      sortCriteria = '-likeVotes';
+    } else if (sortOption === 'mostDisliked') {
+      sortCriteria = '-disLikeVotes';
+    } else if (sortOption === 'newest') {
+      sortCriteria = '-createdAt';
+    }
+
+    this.modelQuery = this.modelQuery.sort(sortCriteria);
 
     return this;
   }
