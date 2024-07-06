@@ -2,6 +2,8 @@ import { Socket, Server } from 'socket.io';
 
 export default function socketEvents(io: Server) {
   io.on('connection', (socket: Socket) => {
+    console.log('New client connected');
+
     socket.on('replyAdded', ({ commentId, reply }) => {
       socket.broadcast.emit('newReply', { commentId, reply });
     });

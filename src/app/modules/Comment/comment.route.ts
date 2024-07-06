@@ -21,7 +21,7 @@ router.put(
 
 router.delete('/:commentId', auth(), CommentController.deleteCommentController);
 
-router.get('/', auth(), CommentController.deleteCommentController);
+router.get('/', auth(), CommentController.getAllComment);
 
 router.get('/:userId', auth(), CommentController.getSingleComment);
 
@@ -34,6 +34,20 @@ router.put(
   '/dislike/:commentId',
   auth(),
   CommentController.disLikeCommentCommentController,
+);
+
+router.post('/:commentId/reply', auth(), CommentController.addReply);
+
+router.put(
+  '/:commentId/reply/:replyId',
+  auth(),
+  CommentController.updateReplyById,
+);
+
+router.delete(
+  '/:commentId/reply/:replyId',
+  auth(),
+  CommentController.deleteReplyById,
 );
 
 export const CommentRoutes = router;

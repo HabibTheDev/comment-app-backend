@@ -109,7 +109,8 @@ const disLikeCommentCommentController = catchAsync(async (req, res) => {
 
 const addReply = catchAsync(async (req, res) => {
   const { commentId } = req.params;
-  const { userId, reply } = req.body;
+  const { reply } = req.body;
+  const userId = req.user._id;
 
   const result = await CommentService.addReplyToComment(commentId, {
     userId,
@@ -125,8 +126,9 @@ const addReply = catchAsync(async (req, res) => {
 });
 
 const updateReplyById = catchAsync(async (req, res) => {
+  const userId = req.user._id;
   const { commentId, replyId } = req.params;
-  const { userId, reply } = req.body;
+  const { reply } = req.body;
 
   const result = await CommentService.updateReply(commentId, replyId, {
     userId,

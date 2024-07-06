@@ -4,12 +4,18 @@ import globalError from './app/middlewares/globalError';
 import router from './app/routes';
 import config from './app/config';
 import http from 'http';
-import socketIO, { Server } from 'socket.io';
+import { Server } from 'socket.io';
+import socketEvents from './app/modules/Comment/comment.socket';
 
+// Create an Express application
 const app: Application = express();
 
+// Create an HTTP server and bind it with the Express application
 const server = http.createServer(app);
-const io: Server = new socketIO.Server(server, {
+
+// Initialize Socket.IO with the server
+const io = new Server(server, {
+  path: '/',
   cors: {
     origin: config.app_link,
     methods: ['GET', 'POST', 'DELETE', 'PUT'],
@@ -17,22 +23,20 @@ const io: Server = new socketIO.Server(server, {
   },
 });
 
-//parsers
+// Middleware setup
 app.use(express.json());
 app.use(cors({ origin: config.app_link, credentials: true }));
 
+// Initialize Socket.IO events
+socketEvents(io);
+
+// Set up Express routes
 app.use('/api', router);
 
+// Global error handler
 app.use(globalError);
 
-io.on('connection', (socket) => {
-  console.log('New client connected');
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-  });
-});
-
+// Default route for testing
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello world, running');
 });

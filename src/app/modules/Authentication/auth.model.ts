@@ -19,7 +19,6 @@ const userSchema = new Schema<TUser, UserModel>(
     photo: {
       type: String,
       required: false,
-      unique: true,
     },
     password: {
       type: String,

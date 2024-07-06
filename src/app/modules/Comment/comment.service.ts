@@ -79,8 +79,8 @@ const getAllCommentFromDB = async (query: Record<string, unknown>) => {
     const commentQuery = new QueryBuilder(
       Comment.find({}).populate([
         {
-          path: 'User',
-          select: 'name',
+          path: 'userId',
+          select: 'username email',
         },
       ]),
       query,
@@ -193,6 +193,7 @@ const dislikeComment = async (userId: string, commentId: string) => {
 const addReplyToComment = async (commentId: string, payload: TReplyPayload) => {
   try {
     const { userId, reply } = payload;
+
     const userIdObj = new Types.ObjectId(userId);
 
     const userExists = await User.findById(userId);
