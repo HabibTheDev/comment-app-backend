@@ -82,6 +82,10 @@ const getAllCommentFromDB = async (query: Record<string, unknown>) => {
           path: 'userId',
           select: 'username email',
         },
+        {
+          path: 'replies.userId',
+          select: 'username',
+        },
       ]),
       query,
     )
@@ -181,6 +185,94 @@ const dislikeComment = async (userId: string, commentId: string) => {
 
     comment.dislikes.push(userIdObj);
     comment.disLikeVotes += 1;
+
+    await comment.save();
+
+    return comment;
+  } catch (error: any) {
+    throw new AppError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
+const likeReply = async (
+  userId: string,
+  commentId: string,
+  replyId: string,
+) => {
+  try {
+    const userIdObj = new Types.ObjectId(userId);
+    const comment = await Comment.findById(commentId);
+
+    console.log(comment);
+
+    if (!comment) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Comment not found');
+    }
+
+    const reply = comment.replies.id(replyId);
+
+    if (!reply) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Reply not found');
+    }
+
+    if (reply.likes.includes(userIdObj)) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'You have already liked this reply',
+      );
+    }
+
+    if (reply.dislikes.includes(userIdObj)) {
+      reply.dislikes = reply.dislikes.filter(
+        (dislikeId) => !dislikeId.equals(userIdObj),
+      );
+      reply.disLikeVotes -= 1;
+    }
+
+    reply.likes.push(userIdObj);
+    reply.likeVotes += 1;
+
+    await comment.save();
+
+    return comment;
+  } catch (error: any) {
+    throw new AppError(httpStatus.BAD_REQUEST, error.message);
+  }
+};
+
+const dislikeReply = async (
+  userId: string,
+  commentId: string,
+  replyId: string,
+) => {
+  try {
+    const userIdObj = new Types.ObjectId(userId);
+    const comment = await Comment.findById(commentId);
+
+    if (!comment) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Comment not found');
+    }
+
+    const reply = comment.replies.id(replyId);
+
+    if (!reply) {
+      throw new AppError(httpStatus.NOT_FOUND, 'Reply not found');
+    }
+
+    if (reply.dislikes.includes(userIdObj)) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        'You have already disliked this reply',
+      );
+    }
+
+    if (reply.likes.includes(userIdObj)) {
+      reply.likes = reply.likes.filter((likeId) => !likeId.equals(userIdObj));
+      reply.likeVotes -= 1;
+    }
+
+    reply.dislikes.push(userIdObj);
+    reply.disLikeVotes += 1;
 
     await comment.save();
 
@@ -291,4 +383,6 @@ export const CommentService = {
   addReplyToComment,
   updateReply,
   deleteReply,
+  likeReply,
+  dislikeReply,
 };

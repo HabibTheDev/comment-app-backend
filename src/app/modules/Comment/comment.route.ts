@@ -30,22 +30,33 @@ router.put(
   auth(),
   CommentController.likeCommentCommentController,
 );
+
 router.put(
   '/dislike/:commentId',
   auth(),
   CommentController.disLikeCommentCommentController,
 );
+router.put(
+  '/:commentId/reply/:replyId/like',
+  auth(),
+  CommentController.likeReplyController,
+);
+router.put(
+  '/:commentId/reply/:replyId/dislike',
+  auth(),
+  CommentController.dislikeReplyController,
+);
 
 router.post('/:commentId/reply', auth(), CommentController.addReply);
 
 router.put(
-  '/:commentId/reply/:replyId',
+  '/:commentId/reply/:replyId/edit',
   auth(),
   CommentController.updateReplyById,
 );
 
 router.delete(
-  '/:commentId/reply/:replyId',
+  '/:commentId/reply/:replyId/delete',
   auth(),
   CommentController.deleteReplyById,
 );

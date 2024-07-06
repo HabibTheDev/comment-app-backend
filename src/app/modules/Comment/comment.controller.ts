@@ -85,7 +85,7 @@ const likeCommentCommentController = catchAsync(async (req, res) => {
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'Comment Updated By User Successfully',
+    message: 'Comment Liked By User Successfully',
     data: result,
   });
 });
@@ -102,8 +102,43 @@ const disLikeCommentCommentController = catchAsync(async (req, res) => {
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: 'Comment Updated By User Successfully',
+    message: 'Comment Disliked By User Successfully',
     data: result,
+  });
+});
+
+const likeReplyController = catchAsync(async (req, res) => {
+  const { commentId, replyId } = req.params;
+  const userId = req.user._id;
+
+  const updatedComment = await CommentService.likeReply(
+    userId,
+    commentId,
+    replyId,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Reply liked successfully',
+    data: updatedComment,
+  });
+});
+
+const dislikeReplyController = catchAsync(async (req, res) => {
+  const { commentId, replyId } = req.params;
+  const userId = req.user._id; // Assuming userId is available in req.user._id
+
+  const updatedComment = await CommentService.dislikeReply(
+    userId,
+    commentId,
+    replyId,
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Reply disliked successfully',
+    data: updatedComment,
   });
 });
 
@@ -167,4 +202,6 @@ export const CommentController = {
   addReply,
   updateReplyById,
   deleteReplyById,
+  likeReplyController,
+  dislikeReplyController,
 };
